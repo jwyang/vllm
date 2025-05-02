@@ -421,8 +421,11 @@ class MagmaForCausalLM(nn.Module, SupportsMultiModal,
         assert self.vision_tower is not None
 
         image_sizes = inputs["image_sizes"].unsqueeze(1)
-        pixel_values = inputs["pixel_values"]
-
+        if isinstance(inputs["pixel_values"], torch.Tensor):
+            pixel_values = inputs["pixel_values"]
+        else:
+            pixel_values = torch.nn.utils.rnn.pad_sequence(inputs["pixel_values"], batch_first=True)  # padding the first dimension
+                
         target_device = self.multi_modal_projector.proj[0].weight.device
         target_dtype = self.multi_modal_projector.proj[0].weight.dtype
 
