@@ -225,28 +225,28 @@ class MagmaMultiModalProcessor(
         input_ids = processed_outputs["input_ids"]
 
         if "pixel_values" in processed_outputs and "image_sizes" in processed_outputs:
-            image_token_id = self.info.get_hf_config().image_token_index
-            # replace the image_token_id with the number of image tokens that is equal to the number of image tokens in the image
-            image_sizes = processed_outputs["image_sizes"]  # (batch_size, num_images, 2)
-            assert input_ids.shape[0] == image_sizes.shape[0]
-            input_ids_list = input_ids.tolist()
-            assert len(input_ids_list) == image_sizes.shape[0]
-            input_ids_list_filled = []
-            for i in range(input_ids.shape[0]):
-                input_ids_orig = input_ids[i].tolist()
-                input_ids_list_filled.append([])
-                img_idx = 0
-                for id in input_ids_orig:
-                    if id == image_token_id:
-                        # replace the image_token_id with the number of image tokens that is equal to the number of image tokens in the image
-                        assert image_sizes[i][img_idx][0] != 0 and image_sizes[i][img_idx][1] != 0, "some mismatch happens, please double check your prompt processor"
-                        num_image_tokens = image_sizes[i][img_idx][0] * image_sizes[i][img_idx][1] * 256 + image_sizes[i][img_idx][0] * 16
-                        input_ids_list_filled[i].extend([image_token_id] * num_image_tokens)                        
-                        img_idx += 1
-                    else:
-                        input_ids_list_filled[i].append(id)
-            processed_outputs["input_ids"] = torch.tensor(input_ids_list_filled)
-            processed_outputs["attention_mask"] = torch.ones_like(processed_outputs["input_ids"])
+            # image_token_id = self.info.get_hf_config().image_token_index
+            # # replace the image_token_id with the number of image tokens that is equal to the number of image tokens in the image
+            # image_sizes = processed_outputs["image_sizes"]  # (batch_size, num_images, 2)
+            # assert input_ids.shape[0] == image_sizes.shape[0]
+            # input_ids_list = input_ids.tolist()
+            # assert len(input_ids_list) == image_sizes.shape[0]
+            # input_ids_list_filled = []
+            # for i in range(input_ids.shape[0]):
+            #     input_ids_orig = input_ids[i].tolist()
+            #     input_ids_list_filled.append([])
+            #     img_idx = 0
+            #     for id in input_ids_orig:
+            #         if id == image_token_id:
+            #             # replace the image_token_id with the number of image tokens that is equal to the number of image tokens in the image
+            #             assert image_sizes[i][img_idx][0] != 0 and image_sizes[i][img_idx][1] != 0, "some mismatch happens, please double check your prompt processor"
+            #             num_image_tokens = image_sizes[i][img_idx][0] * image_sizes[i][img_idx][1] * 256 + image_sizes[i][img_idx][0] * 16
+            #             input_ids_list_filled[i].extend([image_token_id] * num_image_tokens)                        
+            #             img_idx += 1
+            #         else:
+            #             input_ids_list_filled[i].append(id)
+            # processed_outputs["input_ids"] = torch.tensor(input_ids_list_filled)
+            # processed_outputs["attention_mask"] = torch.ones_like(processed_outputs["input_ids"])
 
             image_sizes = processed_outputs["image_sizes"].squeeze(0)
             pixel_values = processed_outputs["pixel_values"].squeeze(0)
